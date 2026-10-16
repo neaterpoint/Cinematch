@@ -6,6 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="CsvHelper" Version="33.1.0" />
+    <Watch Remove="Data\**" />
+  </ItemGroup>
+
   <Target Name="BuildTailwind" BeforeTargets="BeforeBuild">
     <Exec Command="npx @tailwindcss/cli -i Styles/app.css -o wwwroot/tailwind.css --minify" />
   </Target>

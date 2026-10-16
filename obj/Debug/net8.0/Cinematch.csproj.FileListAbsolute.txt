@@ -27,3 +27,6 @@ C:\Users\L23X17W41\Documents\projects\Cinematch\obj\Debug\net8.0\refint\Cinematc
 C:\Users\L23X17W41\Documents\projects\Cinematch\obj\Debug\net8.0\Cinematch.pdb
 C:\Users\L23X17W41\Documents\projects\Cinematch\obj\Debug\net8.0\Cinematch.genruntimeconfig.cache
 C:\Users\L23X17W41\Documents\projects\Cinematch\obj\Debug\net8.0\ref\Cinematch.dll
+C:\Users\L23X17W41\Documents\projects\Cinematch\bin\Debug\net8.0\CsvHelper.dll
+C:\Users\L23X17W41\Documents\projects\Cinematch\obj\Debug\net8.0\Cinematch.csproj.AssemblyReference.cache
+C:\Users\L23X17W41\Documents\projects\Cinematch\obj\Debug\net8.0\Cinematch.csproj.Up2Date

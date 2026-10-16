@@ -1,12 +1,20 @@
 using Cinematch.Components;
 
+using Cinematch.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+
+builder.Services.AddSingleton<MovieCatalog>();
+builder.Services.AddSingleton<GridStore>();
+
 var app = builder.Build();
+
+app.Services.GetRequiredService<MovieCatalog>(); 
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

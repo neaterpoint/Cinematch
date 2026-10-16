@@ -1,5 +1,41 @@
 @import "tailwindcss";
 
+@theme {
+    --color-gold: #F59E0B;
+    --color-ink: #0B0F19;
+    --color-surface: #1E293B;
+    --color-line: #334155;
+    --color-snow: #F8FAFC;
+    --color-muted: #94A3B8;
+    --color-mint: #10B981;
+    --color-danger: #EF4444;
+
+    --font-sans: 'DM Sans', system-ui, sans-serif;
+    --font-display: 'Fraunces', Georgia, serif;
+}
+
+@layer base {
+    body {
+        @apply bg-ink text-snow min-h-screen font-sans leading-[1.6];
+    }
+    h1, h2 {
+        font-family: var(--font-display);
+    }
+    :focus-visible {
+        outline: 2px solid var(--color-gold);
+        outline-offset: 3px;
+    }
+}
+
+@layer components {
+    .btn {
+        @apply inline-block cursor-pointer rounded-lg border border-gold bg-gold px-5.5 py-3 font-bold text-ink;
+    }
+    .btn-alt {
+        @apply border-line bg-transparent text-snow hover:border-muted;
+    }
+}
+
 /* Blazor Framework Styles */
 .valid.modified:not([type=checkbox]) { outline: 1px solid #26b050; }
 .invalid { outline: 1px solid #e50000; }

@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "9v7iElFEm4A=",
+  "dgSpecHash": "D3J+uW68Q5E=",
   "success": true,
   "projectFilePath": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\Cinematch.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\L23X17W41\\.nuget\\packages\\csvhelper\\33.1.0\\csvhelper.33.1.0.nupkg.sha512"
+  ],
   "logs": []
 }

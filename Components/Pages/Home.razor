@@ -1,7 +1,90 @@
 ﻿@page "/"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject GridStore Grids
+@inject MovieCatalog Catalog
 
-<PageTitle>Home</PageTitle>
+<PageTitle>CineMatch - Discover</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (current is null)
+{
+    <div class="px-[5vw] py-[7vh]">
+        <h1 class="font-display text-4xl">No grids yet</h1>
+        <p class="text-muted">Be the first to make one.</p>
+    </div>
+}
+else
+{
+    <div class="mx-auto grid max-w-[1100px] grid-cols-[1fr_auto] items-center gap-[6vw] px-[5vw] py-[7vh] max-[820px]:grid-cols-1">
+        <section>
+            <div class="flex items-center gap-2.5 text-muted">
+                <span class="grid size-9 place-items-center rounded-full border-2 border-gold bg-surface text-[.8rem] font-bold text-gold">
+                    @Initial(current.User)
+                </span>
+                <span>Grid by <a href="profile" class="text-snow">@current.User</a></span>
+            </div>
 
-Welcome to your new app.
+            <h1 class="mt-2.5 mb-4.5 max-w-[14em] font-display text-[length:clamp(2rem,4.6vw,3.4rem)] leading-[1.1]">
+                @current.Topic
+            </h1>
+            <p class="max-w-[30em] text-muted">
+                Nine films, one idea. Hover any poster to see who made it, then try the same prompt yourself.
+            </p>
+
+            <div class="mt-7 flex flex-wrap gap-3">
+                <a class="btn" href="puzzle">Play today's puzzle</a>
+                <button class="btn btn-alt" type="button" @onclick="ShowRandom">Show another grid</button>
+            </div>
+        </section>
+
+        <div class="bg-[radial-gradient(closest-side,rgba(245,158,11,.14),transparent)] p-[30px] max-[820px]:justify-self-center max-[820px]:p-0">
+            <div class="grid w-full max-w-[440px] grid-cols-3 gap-1.5" aria-live="polite">
+                @foreach (var m in films)
+                {
+                    <div class="group relative flex aspect-[2/3] items-end overflow-hidden rounded-md border border-line p-2.5 font-display text-[.95rem] leading-[1.2] font-bold"
+                         tabindex="0"
+                         style="@Gradient(m)">
+                        @m.Title
+                        <div class="absolute inset-0 flex flex-col justify-end bg-ink/90 p-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
+                            <b>@m.Title</b>
+                            <small class="font-sans text-[.8rem] font-normal text-muted">@m.Director, @m.Year</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private UserGrid? current;
+    private List<Movie> films = new();
+
+    protected override void OnInitialized() => ShowRandom();
+
+    private void ShowRandom()
+    {
+        current = Grids.PickRandom(current?.Id);
+        films = new List<Movie>();
+        if (current is null) return;
+
+        foreach (int id in current.MovieIds)
+        {
+            var movie = Catalog.GetById(id);
+            if (movie is not null) films.Add(movie);
+        }
+    }
+
+    private static string Initial(string user)
+    {
+        string name = user.TrimStart('@');
+        return name.Length > 0 ? char.ToUpper(name[0]).ToString() : "?";
+    }
+
+    // No posters in the dataset, so make a stable gradient from the movie id
+    private static string Gradient(Movie m)
+    {
+        int hue = (m.Id * 47) % 360;
+        int hue2 = (hue + 40) % 360;
+        return $"background:linear-gradient(160deg,hsl({hue},45%,32%),hsl({hue2},40%,10%))";
+    }
+}
