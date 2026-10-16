@@ -1,0 +1,29 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\favicon.png",
+      "PackagePath": "staticwebassets\\favicon.png"
+    },
+    {
+      "Id": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\tailwind.css",
+      "PackagePath": "staticwebassets\\tailwind.css"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Cinematch.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Cinematch.props",
+      "PackagePath": "build\\Cinematch.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Cinematch.props",
+      "PackagePath": "buildMultiTargeting\\Cinematch.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Cinematch.props",
+      "PackagePath": "buildTransitive\\Cinematch.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

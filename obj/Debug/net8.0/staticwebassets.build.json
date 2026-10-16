@@ -1,0 +1,58 @@
+{
+  "Version": 1,
+  "Hash": "59zVQF7wW5Ex+By0yFQUamoNPRnAPcyvhpg0Gsw8iXE=",
+  "Source": "Cinematch",
+  "BasePath": "_content/Cinematch",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [
+    {
+      "Name": "Cinematch\\wwwroot",
+      "Source": "Cinematch",
+      "ContentRoot": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\",
+      "BasePath": "_content/Cinematch",
+      "Pattern": "**"
+    }
+  ],
+  "Assets": [
+    {
+      "Identity": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\favicon.png",
+      "SourceId": "Cinematch",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\",
+      "BasePath": "_content/Cinematch",
+      "RelativePath": "favicon.png",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\favicon.png"
+    },
+    {
+      "Identity": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\tailwind.css",
+      "SourceId": "Cinematch",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\Users\\L23X17W41\\Documents\\projects\\Cinematch\\wwwroot\\",
+      "BasePath": "_content/Cinematch",
+      "RelativePath": "tailwind.css",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\tailwind.css"
+    }
+  ]
+}

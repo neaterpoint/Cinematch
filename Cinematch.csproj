@@ -6,4 +6,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <Target Name="BuildTailwind" BeforeTargets="BeforeBuild">
+    <Exec Command="npx @tailwindcss/cli -i Styles/app.css -o wwwroot/tailwind.css --minify" />
+  </Target>
+
 </Project>
