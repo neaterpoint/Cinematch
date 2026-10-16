@@ -18,9 +18,9 @@ else
         <section>
             <div class="flex items-center gap-2.5 text-muted">
                 <span class="grid size-9 place-items-center rounded-full border-2 border-gold bg-surface text-[.8rem] font-bold text-gold">
-                    @Initial(current.User)
+                    @current.Initial
                 </span>
-                <span>Grid by <a href="profile" class="text-snow">@current.User</a></span>
+                <span>Grid by <a href="@current.ProfileUrl" class="text-snow">@current.User</a></span>
             </div>
 
             <h1 class="mt-2.5 mb-4.5 max-w-[14em] font-display text-[length:clamp(2rem,4.6vw,3.4rem)] leading-[1.1]">
@@ -74,9 +74,4 @@ else
         }
     }
 
-    private static string Initial(string user)
-    {
-        string name = user.TrimStart('@');
-        return name.Length > 0 ? char.ToUpper(name[0]).ToString() : "?";
-    }
 }

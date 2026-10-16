@@ -53,6 +53,8 @@
             @if (submitted)
             {
                 <a href="/" class="underline">See Discover</a>
+                <span> · </span>
+                <a href="@profileUrl" class="underline">View your profile</a>
             }
         </p>
     </section>
@@ -94,6 +96,7 @@
     private string handle = "";
     private string message = "";
     private bool submitted;
+    private string profileUrl = "/profile";
 
     private int PlacedCount => slots.Count(s => s is not null);
 
@@ -130,16 +133,19 @@
         if (PlacedCount < 9) return;
 
         string name = handle.Trim();
-        if (name.Length == 0) name = "@guest";
+        if (name.TrimStart('@').Length == 0) name = "@guest";
         if (!name.StartsWith('@')) name = "@" + name;
 
         var ids = slots.Select(s => s!.Id).ToList();
-        Grids.Add(new UserGrid(
+        var grid = new UserGrid(
             Guid.NewGuid().ToString("N")[..8],
             name,
             prompt,
             ids,
-            DateTime.UtcNow));
+            DateTime.UtcNow);
+
+        Grids.Add(grid);
+        profileUrl = grid.ProfileUrl;
 
         submitted = true;
         message = "Grid submitted. Your picks are now live on Discover.";

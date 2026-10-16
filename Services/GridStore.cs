@@ -36,6 +36,26 @@ public class GridStore
         }
     }
 
+    public List<UserGrid> GetByUser(string handle)
+    {
+        string wanted = handle.TrimStart('@');
+        lock (_lock)
+        {
+            return _grids
+                .Where(g => string.Equals(g.User.TrimStart('@'), wanted, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(g => g.CreatedUtc)
+                .ToList();
+        }
+    }
+
+    public UserGrid? Latest()
+    {
+        lock (_lock)
+        {
+            return _grids.OrderByDescending(g => g.CreatedUtc).FirstOrDefault();
+        }
+    }
+
     private void Load()
     {
         using var reader = new StreamReader(_path);

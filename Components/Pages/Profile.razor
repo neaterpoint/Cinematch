@@ -1,8 +1,151 @@
 @page "/profile"
+@page "/profile/{Handle}"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject GridStore Grids
+@inject MovieCatalog Catalog
 
 <PageTitle>CineMatch - Profile</PageTitle>
 
-<div class="px-[5vw] py-[7vh]">
-    <h1 class="font-display text-4xl">Profile</h1>
-    <p class="text-muted">Coming soon.</p>
-</div>
+@if (showcase is null)
+{
+    <div class="px-[5vw] py-[7vh]">
+        <h1 class="font-display text-4xl">No profile found</h1>
+        <p class="mb-6 text-muted">@emptyMessage</p>
+        <a class="btn" href="/puzzle">Make a grid</a>
+    </div>
+}
+else
+{
+    <div class="mx-auto flex max-w-[560px] flex-col items-center px-[5vw] py-[7vh] text-center">
+        <div class="grid size-[104px] place-items-center rounded-full border-[3px] border-gold bg-surface font-display text-[2.4rem] font-bold text-gold"
+             aria-hidden="true">@showcase.Initial</div>
+
+        <h1 class="mt-4 font-display text-[2rem] leading-[1.2]">@handleName</h1>
+
+        @if (topGenre != "-")
+        {
+            <p class="mt-2 max-w-[28em] text-muted">Most picked genre: @topGenre</p>
+        }
+
+        <div class="mt-[18px] flex gap-7 text-muted">
+            <span><b class="block font-display text-[1.3rem] font-bold text-snow">@grids.Count</b>Grids made</span>
+            <span><b class="block font-display text-[1.3rem] font-bold text-snow">@filmsPicked</b>Films picked</span>
+            <span><b class="block font-display text-[1.3rem] font-bold text-snow">@topDirector</b>Top director</span>
+        </div>
+
+        <div class="mt-10 mb-3.5">
+            <h2 class="text-[1.3rem]">@showcase.Topic</h2>
+            <p class="text-[.95rem] text-muted">Grid by @handleName. Hover a poster for details.</p>
+        </div>
+
+        <div class="grid w-full max-w-[470px] place-items-center rounded-xl border border-line bg-surface p-3.5">
+            <div class="grid w-full max-w-[440px] grid-cols-3 gap-1.5">
+                @foreach (var m in films)
+                {
+                    <div class="group relative flex aspect-[2/3] items-end overflow-hidden rounded-md border border-line p-2.5 text-left font-display text-[.95rem] leading-[1.2] font-bold"
+                         tabindex="0"
+                         style="@m.Gradient()">
+                        @m.Title
+                        <div class="absolute inset-0 flex flex-col justify-end bg-ink/90 p-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
+                            <b>@m.Title</b>
+                            <small class="font-sans text-[.8rem] font-normal text-muted">@m.Director, @m.Year</small>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+
+        @if (grids.Count > 1)
+        {
+            <div class="mt-10 w-full max-w-[470px] text-left">
+                <h2 class="mb-2.5 text-[1.15rem]">More grids</h2>
+                <div class="flex flex-col gap-2">
+                    @foreach (var g in grids)
+                    {
+                        <button type="button"
+                                class="flex items-center justify-between gap-3 rounded-lg border px-4 py-2.5 text-left @(g.Id == showcase.Id ? "border-gold" : "border-line hover:border-muted")"
+                                @onclick="() => ShowGrid(g)">
+                            <span>@g.Topic</span>
+                            <span class="flex-none text-[.8rem] text-muted">@g.CreatedUtc.ToString("d MMM yyyy")</span>
+                        </button>
+                    }
+                </div>
+            </div>
+        }
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string? Handle { get; set; }
+
+    private List<UserGrid> grids = new();
+    private UserGrid? showcase;
+    private List<Movie> films = new();
+    private string handleName = "";
+    private string emptyMessage = "";
+    private int filmsPicked;
+    private string topDirector = "-";
+    private string topGenre = "-";
+
+    // OnParametersSet (not OnInitialized) so going from /profile/a to /profile/b reloads the data
+    protected override void OnParametersSet()
+    {
+        // No handle in the URL: fall back to whoever made the newest grid
+        string? who = Handle;
+        if (string.IsNullOrWhiteSpace(who)) who = Grids.Latest()?.User;
+
+        grids = who is null ? new List<UserGrid>() : Grids.GetByUser(who);
+
+        if (grids.Count == 0)
+        {
+            showcase = null;
+            emptyMessage = who is null
+                ? "Nobody has submitted a grid yet."
+                : "No grids found for @" + who.TrimStart('@') + ".";
+            return;
+        }
+
+        handleName = grids[0].User;
+        ShowGrid(grids[0]);
+        ComputeStats();
+    }
+
+    private void ShowGrid(UserGrid grid)
+    {
+        showcase = grid;
+        films = new List<Movie>();
+
+        foreach (int id in grid.MovieIds)
+        {
+            var movie = Catalog.GetById(id);
+            if (movie is not null) films.Add(movie);
+        }
+    }
+
+    private void ComputeStats()
+    {
+        // Every film this user has put in any of their grids
+        var movies = grids
+            .SelectMany(g => g.MovieIds)
+            .Select(id => Catalog.GetById(id))
+            .OfType<Movie>()          // drops any nulls
+            .ToList();
+
+        filmsPicked = movies.Select(m => m.Id).Distinct().Count();
+
+        topDirector = movies
+            .Where(m => m.Director != "Unknown")
+            .GroupBy(m => m.Director)
+            .OrderByDescending(x => x.Count())
+            .Select(x => x.Key)
+            .FirstOrDefault() ?? "-";
+
+        topGenre = movies
+            .SelectMany(m => m.Genres)
+            .GroupBy(name => name)
+            .OrderByDescending(x => x.Count())
+            .Select(x => x.Key)
+            .FirstOrDefault() ?? "-";
+    }
+}
