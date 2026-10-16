@@ -21,15 +21,18 @@ public class MovieCatalog
         _byId.TryGetValue(id, out var movie) ? movie : null;
 
     // Used later by the "create a grid" page
-    public List<Movie> Search(string text, int max = 10)
+        public List<Movie> Search(string text, int max = 30)
     {
-        if (string.IsNullOrWhiteSpace(text)) return new List<Movie>();
+        IEnumerable<Movie> query = _movies;
 
-        return _movies
-            .Where(m => m.Title.Contains(text, StringComparison.OrdinalIgnoreCase))
-            .OrderByDescending(m => m.Popularity)
-            .Take(max)
-            .ToList();
+        if (!string.IsNullOrWhiteSpace(text))
+        {
+            query = query.Where(m =>
+                m.Title.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                m.Director.Contains(text, StringComparison.OrdinalIgnoreCase));
+        }
+
+        return query.OrderByDescending(m => m.Popularity).Take(max).ToList();
     }
 
     private static Dictionary<int, string> LoadDirectors(string path)

@@ -42,7 +42,7 @@ else
                 {
                     <div class="group relative flex aspect-[2/3] items-end overflow-hidden rounded-md border border-line p-2.5 font-display text-[.95rem] leading-[1.2] font-bold"
                          tabindex="0"
-                         style="@Gradient(m)">
+                         style="@m.Gradient()">
                         @m.Title
                         <div class="absolute inset-0 flex flex-col justify-end bg-ink/90 p-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100 motion-reduce:transition-none">
                             <b>@m.Title</b>
@@ -78,13 +78,5 @@ else
     {
         string name = user.TrimStart('@');
         return name.Length > 0 ? char.ToUpper(name[0]).ToString() : "?";
-    }
-
-    // No posters in the dataset, so make a stable gradient from the movie id
-    private static string Gradient(Movie m)
-    {
-        int hue = (m.Id * 47) % 360;
-        int hue2 = (hue + 40) % 360;
-        return $"background:linear-gradient(160deg,hsl({hue},45%,32%),hsl({hue2},40%,10%))";
     }
 }

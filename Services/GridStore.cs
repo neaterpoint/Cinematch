@@ -47,7 +47,9 @@ public class GridStore
         {
             var ids = new List<int>();
             foreach (var part in (csv.GetField("MovieIds") ?? "").Split(';', StringSplitOptions.RemoveEmptyEntries))
-                ids.Add(int.Parse(part));
+            {
+                if (int.TryParse(part, out int movieId)) ids.Add(movieId);
+            }
 
             _grids.Add(new UserGrid(
                 csv.GetField("Id") ?? "",

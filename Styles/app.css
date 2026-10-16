@@ -31,8 +31,14 @@
     .btn {
         @apply inline-block cursor-pointer rounded-lg border border-gold bg-gold px-5.5 py-3 font-bold text-ink;
     }
+    .btn:disabled {
+        @apply cursor-not-allowed border-line bg-surface text-muted;
+    }
     .btn-alt {
         @apply border-line bg-transparent text-snow hover:border-muted;
+    }
+    .field {
+        @apply mb-2.5 w-full rounded-lg border border-line bg-ink px-3 py-2.5 text-snow placeholder:text-muted;
     }
 }
 

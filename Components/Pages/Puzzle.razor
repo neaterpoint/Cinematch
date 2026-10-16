@@ -1,0 +1,147 @@
+@page "/puzzle"
+@rendermode @(new InteractiveServerRenderMode(prerender: false))
+@inject MovieCatalog Catalog
+@inject GridStore Grids
+
+<PageTitle>CineMatch - Puzzle</PageTitle>
+
+<div class="mx-auto grid max-w-[1000px] grid-cols-[auto_1fr] gap-[5vw] px-[5vw] py-[6vh] max-[820px]:grid-cols-1">
+
+    <header class="col-span-full">
+        <p class="text-muted">Today's prompt</p>
+        <h1 class="mt-1 mb-2 font-display text-[length:clamp(1.8rem,4vw,2.8rem)] leading-[1.15]">@prompt</h1>
+        <p class="text-muted">Pick nine films that fit. Select a film on the right to place it, select a placed poster to remove it.</p>
+    </header>
+
+    <section>
+        <div class="grid w-full max-w-[400px] grid-cols-3 gap-1.5 max-[820px]:justify-self-center">
+            @for (int i = 0; i < slots.Length; i++)
+            {
+                int index = i;   // copy the loop variable so each button remembers its own slot
+                var movie = slots[i];
+
+                if (movie is null)
+                {
+                    <div class="flex aspect-[2/3] items-center justify-center rounded-md border-2 border-dashed border-line text-[.85rem] text-muted">
+                        Empty
+                    </div>
+                }
+                else
+                {
+                    <button type="button"
+                            class="group relative flex aspect-[2/3] cursor-pointer items-end rounded-md p-2.5 text-left font-display text-[.9rem] leading-[1.2] font-bold @(submitted ? "border-2 border-mint" : "border border-line hover:border-danger")"
+                            style="@movie.Gradient()"
+                            aria-label="Remove @movie.Title"
+                            @onclick="() => Remove(index)">
+                        @movie.Title
+                        <span class="absolute top-2 right-2 hidden rounded bg-ink/85 px-2 py-0.5 text-xs font-bold text-danger group-hover:block">Remove</span>
+                    </button>
+                }
+            }
+        </div>
+
+        <input class="field mt-5 max-w-[400px]" type="text" placeholder="Your handle, e.g. @@reelmaya"
+               aria-label="Your handle" @bind="handle" />
+
+        <div class="flex items-center gap-4">
+            <span class="font-bold text-gold">@PlacedCount of 9 placed</span>
+            <button class="btn" type="button" disabled="@(PlacedCount < 9 || submitted)" @onclick="Submit">Submit grid</button>
+        </div>
+
+        <p class="mt-3.5 min-h-[1.6em] text-mint" role="status">
+            @message
+            @if (submitted)
+            {
+                <a href="/" class="underline">See Discover</a>
+            }
+        </p>
+    </section>
+
+    <aside class="self-start rounded-xl border border-line bg-surface p-[18px]">
+        <h2 class="mb-2.5 text-[1.15rem]">Find a film</h2>
+        <input class="field" type="search" placeholder="Search by title or director" aria-label="Search films"
+               @bind="query" @bind:event="oninput" @bind:after="RunSearch" />
+
+        <div class="flex max-h-[440px] flex-col gap-0.5 overflow-auto">
+            @foreach (var m in results)
+            {
+                <button type="button"
+                        class="flex items-center gap-3 rounded-lg p-2 text-left hover:bg-ink @(IsUsed(m) ? "pointer-events-none opacity-40" : "")"
+                        @onclick="() => Place(m)">
+                    <span class="h-11 w-[30px] flex-none rounded border border-line" style="@m.Gradient()"></span>
+                    <span>
+                        @m.Title
+                        <small class="block text-[.8rem] text-muted">@m.Director, @m.Year</small>
+                    </span>
+                </button>
+            }
+            @if (results.Count == 0)
+            {
+                <p class="p-2 text-muted">No films match. Try a different title or director.</p>
+            }
+        </div>
+    </aside>
+</div>
+
+@code {
+    private static readonly string[] Directors =
+        { "Christopher Nolan", "Quentin Tarantino", "Wes Anderson", "Steven Spielberg" };
+
+    private readonly Movie?[] slots = new Movie?[9];
+    private List<Movie> results = new();
+    private string prompt = "";
+    private string query = "";
+    private string handle = "";
+    private string message = "";
+    private bool submitted;
+
+    private int PlacedCount => slots.Count(s => s is not null);
+
+    protected override void OnInitialized()
+    {
+        string director = Directors[DateTime.UtcNow.DayOfYear % Directors.Length];
+        prompt = $"Movies directed by {director}, or films he'd have loved to make";
+        RunSearch();
+    }
+
+    private void RunSearch() => results = Catalog.Search(query);
+
+    private bool IsUsed(Movie m) => slots.Any(s => s?.Id == m.Id);
+
+    private void Place(Movie m)
+    {
+        int free = Array.IndexOf(slots, null);   // first empty slot, or -1 if full
+        if (free == -1) return;
+
+        slots[free] = m;
+        submitted = false;
+        message = "";
+    }
+
+    private void Remove(int index)
+    {
+        slots[index] = null;
+        submitted = false;
+        message = "";
+    }
+
+    private void Submit()
+    {
+        if (PlacedCount < 9) return;
+
+        string name = handle.Trim();
+        if (name.Length == 0) name = "@guest";
+        if (!name.StartsWith('@')) name = "@" + name;
+
+        var ids = slots.Select(s => s!.Id).ToList();
+        Grids.Add(new UserGrid(
+            Guid.NewGuid().ToString("N")[..8],
+            name,
+            prompt,
+            ids,
+            DateTime.UtcNow));
+
+        submitted = true;
+        message = "Grid submitted. Your picks are now live on Discover.";
+    }
+}

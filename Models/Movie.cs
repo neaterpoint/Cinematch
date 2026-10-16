@@ -8,4 +8,13 @@ public record Movie(
     List<string> Genres,
     double Rating,
     double Popularity,
-    string Overview);
+    string Overview)
+{
+    // No posters in the dataset, so make a stable gradient from the movie id
+    public string Gradient()
+    {
+        int hue = (Id * 47) % 360;
+        int hue2 = (hue + 40) % 360;
+        return $"background:linear-gradient(160deg,hsl({hue},45%,32%),hsl({hue2},40%,10%))";
+    }
+}
