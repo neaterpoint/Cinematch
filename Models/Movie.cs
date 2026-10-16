@@ -17,4 +17,6 @@ public record Movie(
         int hue2 = (hue + 40) % 360;
         return $"background:linear-gradient(160deg,hsl({hue},45%,32%),hsl({hue2},40%,10%))";
     }
+
+    public string YearText => Year > 0 ? Year.ToString() : "n/a";
 }

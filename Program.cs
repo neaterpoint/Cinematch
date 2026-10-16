@@ -1,29 +1,29 @@
 using Cinematch.Components;
-
 using Cinematch.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
 builder.Services.AddRazorComponents()
-    .AddInteractiveServerComponents();
-
+    .AddInteractiveServerComponents(options =>
+        options.DetailedErrors = builder.Environment.IsDevelopment());
 
 builder.Services.AddSingleton<MovieCatalog>();
 builder.Services.AddSingleton<GridStore>();
 
 var app = builder.Build();
 
-app.Services.GetRequiredService<MovieCatalog>(); 
+// Load the data now, so a missing or broken CSV fails at startup, not on a visitor's first click
+app.Services.GetRequiredService<MovieCatalog>();
+app.Services.GetRequiredService<GridStore>();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+    // The default HSTS value is 30 days. See https://aka.ms/aspnetcore-hsts for production.
     app.UseHsts();
 }
 
+app.UseStatusCodePagesWithReExecute("/not-found");
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();

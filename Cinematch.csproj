@@ -9,9 +9,12 @@
   <ItemGroup>
     <PackageReference Include="CsvHelper" Version="33.1.0" />
     <Watch Remove="Data\**" />
+    <!-- Ship the movie data when publishing (grids.csv is user data, so it is not shipped) -->
+    <None Update="Data\tmdb_*.csv" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
 
   <Target Name="BuildTailwind" BeforeTargets="BeforeBuild">
+    <Exec Command="npm install" Condition="!Exists('node_modules')" />
     <Exec Command="npx @tailwindcss/cli -i Styles/app.css -o wwwroot/tailwind.css --minify" />
   </Target>
 

@@ -2,6 +2,7 @@
 @rendermode @(new InteractiveServerRenderMode(prerender: false))
 @inject MovieCatalog Catalog
 @inject GridStore Grids
+@using System.Text.RegularExpressions
 
 <PageTitle>CineMatch - Puzzle</PageTitle>
 
@@ -40,7 +41,7 @@
             }
         </div>
 
-        <input class="field mt-5 max-w-[400px]" type="text" placeholder="Your handle, e.g. @@reelmaya"
+        <input class="field mt-5 max-w-[400px]" type="text" maxlength="30" placeholder="Your handle, e.g. @@reelmaya"
                aria-label="Your handle" @bind="handle" />
 
         <div class="flex items-center gap-4">
@@ -48,12 +49,12 @@
             <button class="btn" type="button" disabled="@(PlacedCount < 9 || submitted)" @onclick="Submit">Submit grid</button>
         </div>
 
-        <p class="mt-3.5 min-h-[1.6em] text-mint" role="status">
+        <p class="mt-3.5 min-h-[1.6em] @(isError ? "text-danger" : "text-mint")" role="status">
             @message
             @if (submitted)
             {
                 <a href="/" class="underline">See Discover</a>
-                <span> · </span>
+                <span> &middot; </span>
                 <a href="@profileUrl" class="underline">View your profile</a>
             }
         </p>
@@ -68,12 +69,13 @@
             @foreach (var m in results)
             {
                 <button type="button"
-                        class="flex items-center gap-3 rounded-lg p-2 text-left hover:bg-ink @(IsUsed(m) ? "pointer-events-none opacity-40" : "")"
+                        disabled="@IsUsed(m)"
+                        class="flex items-center gap-3 rounded-lg p-2 text-left hover:bg-ink disabled:pointer-events-none disabled:opacity-40"
                         @onclick="() => Place(m)">
                     <span class="h-11 w-[30px] flex-none rounded border border-line" style="@m.Gradient()"></span>
                     <span>
                         @m.Title
-                        <small class="block text-[.8rem] text-muted">@m.Director, @m.Year</small>
+                        <small class="block text-[.8rem] text-muted">@m.Director, @m.YearText</small>
                     </span>
                 </button>
             }
@@ -96,6 +98,7 @@
     private string handle = "";
     private string message = "";
     private bool submitted;
+    private bool isError;
     private string profileUrl = "/profile";
 
     private int PlacedCount => slots.Count(s => s is not null);
@@ -113,11 +116,13 @@
 
     private void Place(Movie m)
     {
+        if (IsUsed(m)) return;                   // also blocks keyboard activation
         int free = Array.IndexOf(slots, null);   // first empty slot, or -1 if full
         if (free == -1) return;
 
         slots[free] = m;
         submitted = false;
+        isError = false;
         message = "";
     }
 
@@ -125,28 +130,38 @@
     {
         slots[index] = null;
         submitted = false;
+        isError = false;
         message = "";
     }
 
     private void Submit()
     {
-        if (PlacedCount < 9) return;
+        if (PlacedCount < 9 || submitted) return;
 
-        string name = handle.Trim();
-        if (name.TrimStart('@').Length == 0) name = "@guest";
-        if (!name.StartsWith('@')) name = "@" + name;
+        // Keep only letters, digits, _ . - so the handle is safe in URLs and the CSV
+        string clean = Regex.Replace(handle, "[^A-Za-z0-9_.-]", "");
+        if (clean.Length > 30) clean = clean[..30];
+        if (clean.Length == 0) clean = "guest";
+        handle = clean;   // show the person the handle that was actually used
 
         var ids = slots.Select(s => s!.Id).ToList();
         var grid = new UserGrid(
             Guid.NewGuid().ToString("N")[..8],
-            name,
+            "@" + clean,
             prompt,
             ids,
             DateTime.UtcNow);
 
-        Grids.Add(grid);
-        profileUrl = grid.ProfileUrl;
+        string? problem = Grids.TryAdd(grid);
+        if (problem is not null)
+        {
+            isError = true;
+            message = problem;
+            return;
+        }
 
+        profileUrl = grid.ProfileUrl;
+        isError = false;
         submitted = true;
         message = "Grid submitted. Your picks are now live on Discover.";
     }

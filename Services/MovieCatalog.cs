@@ -13,15 +13,24 @@ public class MovieCatalog
     public MovieCatalog(IWebHostEnvironment env)
     {
         string dir = Path.Combine(env.ContentRootPath, "Data");
-        var directors = LoadDirectors(Path.Combine(dir, "tmdb_5000_credits.csv"));
-        LoadMovies(Path.Combine(dir, "tmdb_5000_movies.csv"), directors);
+        string moviesFile = Path.Combine(dir, "tmdb_5000_movies.csv");
+        string creditsFile = Path.Combine(dir, "tmdb_5000_credits.csv");
+
+        foreach (var file in new[] { moviesFile, creditsFile })
+        {
+            if (!File.Exists(file))
+                throw new FileNotFoundException("Missing data file. Copy it into the Data folder: " + file);
+        }
+
+        var directors = LoadDirectors(creditsFile);
+        LoadMovies(moviesFile, directors);
     }
 
     public Movie? GetById(int id) =>
         _byId.TryGetValue(id, out var movie) ? movie : null;
 
-    // Used later by the "create a grid" page
-        public List<Movie> Search(string text, int max = 30)
+    // Matches title or director; most popular first. An empty search returns the most popular films.
+    public List<Movie> Search(string text, int max = 30)
     {
         IEnumerable<Movie> query = _movies;
 
